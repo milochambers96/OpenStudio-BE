@@ -5,7 +5,7 @@ from rest_framework.exceptions import PermissionDenied
 from datetime import datetime, timedelta
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from .serializers import MemberSerializer
+from .serializers.common import MemberSerializer
 import jwt
 
 Member = get_user_model()

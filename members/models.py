@@ -17,7 +17,7 @@ class Member(AbstractUser):
   
     ## Artist Members Fields
     bio = models.TextField(validators=[MaxLengthValidator(700)])
-    website = models.SlugField(max_length=200, blank=True)
+    website = models.URLField(max_length=200, blank=True)
     artist_address = models.CharField(max_length=255, blank=True)
 
     ## Collector Members Fields
