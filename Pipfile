@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 django = "*"
 psycopg2-binary = "*"
+djangorestframework = "*"
+pyjwt = "*"
+django-environ = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 autopep8 = "*"
