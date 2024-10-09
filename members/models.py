@@ -16,7 +16,7 @@ class Member(AbstractUser):
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
   
     ## Artist Members Fields
-    bio = models.TextField(validators=[MaxLengthValidator(700)])
+    bio = models.TextField(validators=[MaxLengthValidator(700)], blank=True)
     website = models.URLField(max_length=200, blank=True)
     artist_address = models.CharField(max_length=255, blank=True)
 

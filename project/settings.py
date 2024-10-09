@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'members',
+    'artworks',
+    'artwork_images',
 ]
 
 MIDDLEWARE = [

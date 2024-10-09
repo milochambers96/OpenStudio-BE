@@ -28,7 +28,7 @@ class JWTAuthentication(BasicAuthentication):
             raise PermissionDenied(detail="Invalid authorisation token")
         
         except Member.DoesNotExist:
-            raise PermissionDenied(detail="User not found")
+            raise PermissionDenied(detail="Member not found")
         
         return (member, token)
 
