@@ -5,7 +5,7 @@ class Gallery(models.Model):
     artworks = models.ManyToManyField('artworks.Artwork', through='GalleryArtwork')
 
     def __str__(self):
-        return f'Gallery curated by {self.curator.first_name} {self.curator.last_name}'
+        return f'Gallery curated by {self.curator.username}.'
     
 class GalleryArtwork(models.Model):
     gallery = models.ForeignKey(Gallery, on_delete=models.CASCADE)

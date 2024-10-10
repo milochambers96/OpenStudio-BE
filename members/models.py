@@ -24,7 +24,7 @@ class Member(AbstractUser):
     collector_address = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name} - {self.user_type}'
+        return f'{self.username} - {self.user_type}'
     
     
     

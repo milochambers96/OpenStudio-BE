@@ -52,3 +52,4 @@ class LoginView(APIView):
                 "token": token, 
                 "message": f"Welcome back {member_to_login.first_name} {member_to_login.last_name}."
         })
+

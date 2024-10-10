@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'artworks',
     'artwork_images',
     'galleries',
+    'orders'
 ]
 
 MIDDLEWARE = [
