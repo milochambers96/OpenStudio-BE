@@ -53,3 +53,21 @@ class LoginView(APIView):
                 "message": f"Welcome back {member_to_login.first_name} {member_to_login.last_name}."
         })
 
+class MemberIdView(APIView):
+    
+    def get(self, request): 
+        try:
+            current_member = request.user
+            if current_member.is_authenticated:
+                member_data = MemberSerializer(current_member).data
+                return Response(member_data, status=status.HTTP_200_OK)
+            else: 
+                return Response({"message": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as error:
+            print(error)
+            return Response(
+                {"message": "There was an error, please try again later."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        
