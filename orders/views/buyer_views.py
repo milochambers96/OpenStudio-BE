@@ -18,13 +18,14 @@ class PurchaseRequestsListView(APIView):
             return Response(serialized_purchases.data, status=status.HTTP_200_OK)
         except Order.DoesNotExist:
             raise NotFound(detail = 'Purchase requests not found.')
-        
+
+
 class CreateOrderView(APIView):
     permission_classes = (IsAuthenticated, )
 
     def post (self, request): 
         buyer = request.user
-        artwork_id = request.data.get('artwork.id')
+        artwork_id = request.data.get('artwork_id')
         try:
             artwork = Artwork.objects.get(pk=artwork_id)
         except Artwork.DoesNotExist:
@@ -44,7 +45,7 @@ class CreateOrderView(APIView):
         }
 
         serialized_order = OrderSerializer(data=order_data)
-        
+
         try:
         
             if serialized_order.is_valid():
@@ -55,6 +56,25 @@ class CreateOrderView(APIView):
         except Exception as error: 
             print('Error')
             return Response(error.__dict__ if error.__dict__ else str(error), status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+
+class CancelOrderView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def patch(self, request, order_id):
+        try: 
+            order = Order.objects.get(pk=order_id, buyer=request.user)
+        except Order.DoesNotExist:
+            raise NotFound(detail="Order not found")
+        
+        if order.status not in ['pending', 'accepted']:
+            return Response({'error': 'This order cannot be cancelled'}, status=status.HTTP_400_BAD_REQUEST)
+        order.status = 'cancelled'
+        order.save()
+
+        serialized_order = OrderSerializer(order)
+        return Response(serialized_order.data, status=status.HTTP_200_OK)        
+        
 
 class ProcessDummyPaymentView(APIView):
     permission_classes = (IsAuthenticated, )

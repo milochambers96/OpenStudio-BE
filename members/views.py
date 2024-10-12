@@ -20,38 +20,67 @@ class RegisterView(APIView):
             if new_member_instance.user_type == 'collector': 
                 Gallery.objects.create(curator=new_member_instance)
 
-            return Response({"message": "Registration Successful. Welcome to the studio."}, status=status.HTTP_201_CREATED)
+            return Response({
+                "message": "Registration Successful. Welcome to the studio.",
+            }, status=status.HTTP_201_CREATED)
         
-        return Response(member_to_create.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        error_messages = []
+        for field, errors in member_to_create.errors.items():
+            for error in errors:
+                error_messages.append(f"{field.replace('_', ' ').capitalize()}: {error}")
+        
+        return Response({
+            "message": "Registration failed. Please correct the following errors:",
+            "errors": error_messages
+        }, status=status.HTTP_400_BAD_REQUEST)
     
+
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
 
+        error_messages = []
+        if not email:
+            error_messages.append("Email: This field is required.")
+        if not password:
+            error_messages.append("Password: This field is required.")
+
+        if error_messages:
+            return Response({
+                "message": "Login failed. Please provide all required fields.",
+                "errors": error_messages
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             member_to_login = Member.objects.get(email=email)
         except Member.DoesNotExist:
-            raise PermissionDenied(detail="Invalid Credentials")
+            return Response({
+                "message": "Login failed. Please check your credentials.",
+                "errors": ["Invalid email or password."]
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
         if not member_to_login.check_password(password):
-            raise PermissionDenied(detail="Invalid Credentials")
-        
-        if member_to_login.user_type == 'collector':
-            user_gallery = Gallery.objects.get(curator=member_to_login)
+            return Response({
+                "message": "Login failed. Please check your credentials.",
+                "errors": ["Invalid email or password."]
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
         dt = datetime.now() + timedelta(days=14)
         token = jwt.encode({'sub': member_to_login.id, 'exp': int(dt.timestamp())}, settings.SECRET_KEY, algorithm='HS256')
+
         if member_to_login.user_type == 'collector':
-            return Response ({
+            user_gallery = Gallery.objects.get(curator=member_to_login)
+            return Response({
                 "token": token, 
                 "gallery_id": user_gallery.id,
                 "message": f"Welcome back {member_to_login.first_name} {member_to_login.last_name}."
-                })
+            })
         else:
-            return Response ({
+            return Response({
                 "token": token, 
                 "message": f"Welcome back {member_to_login.first_name} {member_to_login.last_name}."
-        })
+            })
 
 class MemberIdView(APIView):
     
