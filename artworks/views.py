@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Artwork
@@ -9,6 +9,10 @@ from artwork_images.models import ArtworkImage
 from .serializers.common import ArtworkSerializer
 # from artwork_images.serializers.common import ArtworkImageSerializer
 from .serializers.populated import PopulatedArtworkSerializer
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ArtworkListView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly, )
@@ -27,7 +31,6 @@ class ArtworkListView(APIView):
                 artwork_instance = artwork_to_add.save()
                 image_urls = request.data.get('artwork_images', [])
                 
-                # Create associated artwork images
                 for image_url in image_urls:
                     ArtworkImage.objects.create(artwork=artwork_instance, image_url=image_url)
                 
@@ -54,25 +57,70 @@ class ArtworkDetailView(APIView):
 
     def put(self, request, pk):
         artwork_to_update = self.get_artwork(pk=pk)
+
+        if artwork_to_update.artist.id != request.user.id:
+            raise PermissionDenied(detail="You don't have permission to edit this artwork.")
+        
+        artwork_images = request.data.pop('artworks_images', [])
+        
         updated_artwork = ArtworkSerializer(artwork_to_update, data=request.data, partial=True)
 
         if updated_artwork.is_valid():
             updated_artwork_instance = updated_artwork.save()
 
-            image_urls = request.data.get('artwork_images', [])  
-            if image_urls:
+            if artwork_images:
                 artwork_to_update.artworks_images.all().delete()
-                for image_url in image_urls:
+                
+                for image_url in artwork_images:
                     ArtworkImage.objects.create(artwork=updated_artwork_instance, image_url=image_url)
+
             return Response(PopulatedArtworkSerializer(updated_artwork_instance).data, status=status.HTTP_202_ACCEPTED)
+        
         return Response(updated_artwork.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    def delete(self, _request, pk):
-        artwork_to_delete = self.get_artwork(pk=pk)
+    def delete(self, request, pk):
+        try:
+            artwork_to_delete = self.get_artwork(pk=pk)
 
-        artwork_to_delete.artworks_images.all().delete() 
-        artwork_to_delete.delete()
+            if artwork_to_delete.artist.id != request.user.id:
+                raise PermissionDenied(detail="You don't have permission to delete this artwork.")
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            artwork_to_delete.artworks_images.all().delete() 
+            artwork_to_delete.delete()
+
+            return Response({"detail": "Artwork successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+        except NotFound as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except PermissionDenied as e:
+            return Response({"detail": str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            logger.error(f"Error deleting artwork: {str(e)}")
+            return Response({"detail": "An error occurred while deleting the artwork."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
+class ArtworkCreateView(APIView):
+    def post(self, request):
+        request.data["artist"] = request.user.id
+        artwork_to_add = ArtworkSerializer(data=request.data)
+
+        try:
+            if artwork_to_add.is_valid():
+                artwork_instance = artwork_to_add.save()
+                image_urls = request.data.get('artworks_images', [])
+                
+                logger.info(f"Received image URLs: {image_urls}")
+                
+                for image_url in image_urls:
+                    ArtworkImage.objects.create(artwork=artwork_instance, image_url=image_url)
+                
+                updated_artwork = PopulatedArtworkSerializer(artwork_instance).data
+                logger.info(f"Updated artwork data: {updated_artwork}")
+                
+                return Response(updated_artwork, status=status.HTTP_201_CREATED)
+            else:
+                logger.error(f"Validation errors: {artwork_to_add.errors}")
+                return Response(artwork_to_add.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as err:
+            logger.exception(f"Error creating artwork: {str(err)}")
+            return Response({"detail": f"An error occurred while creating the artwork: {str(err)}"}, status=status.HTTP_400_BAD_REQUEST)
+        

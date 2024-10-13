@@ -11,12 +11,12 @@ class SellerOrdersListView(APIView):
     permission_classes = (IsAuthenticated, )
 
     def get(self, request): 
-        try:
-            orders_list = Order.objects.get(seller = request.user)
-            seralized_orders = OrderSerializer(orders_list)
-            return Response(seralized_orders.data, status=status.HTTP_200_OK)
-        except Order.DoesNotExist:
-            raise NotFound(detail = 'Order list not found.')
+        purchase_requests = Order.objects.filter(seller=request.user)
+        if not purchase_requests.exists():
+            return Response({'detail': 'No purchase requests found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serialized_purchases = OrderSerializer(purchase_requests, many=True)
+        return Response(serialized_purchases.data, status=status.HTTP_200_OK)
 
 class SpecificOrderView(APIView):
     permission_classes = (IsAuthenticated, )
@@ -33,7 +33,7 @@ class SpecificOrderView(APIView):
             raise NotFound(detail = 'Order not found.')
     
 class ReviewOrderView(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def patch(self, request, order_id):
         try: 
@@ -43,15 +43,16 @@ class ReviewOrderView(APIView):
         
         order_action = request.data.get('action')
         if order_action == 'accept':
-            order.status='accepted'
+            order.status = 'accepted'
             order.save()
-            return Response({'message': 'Order accepted'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Order accepted', 'status': order.status}, status=status.HTTP_200_OK)
         elif order_action == 'cancel':
-            order.status == 'cancelled'
+            order.status = 'cancelled'  
             order.save()
-            return Response({'message': 'Order cancelled'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Order cancelled', 'status': order.status}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid order action'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class OrderShippedView(APIView):
     permission_classes = (IsAuthenticated, )
@@ -65,7 +66,7 @@ class OrderShippedView(APIView):
         if order.status != 'ready_to_ship':
             return Response({'error': 'Order is not ready to ship.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        order.status='shipped'
+        order.status = 'shipped'
         order.save()
         return Response({'message': 'Order status updated to shipped.'}, status=status.HTTP_200_OK)
 

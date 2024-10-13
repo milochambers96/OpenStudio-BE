@@ -12,12 +12,12 @@ class PurchaseRequestsListView(APIView):
     permission_classes = (IsAuthenticated, )
 
     def get (self, request):
-        try: 
-            purchase_requests = Order.objects.get(buyer = request.user)
-            serialized_purchases = OrderSerializer(purchase_requests)
-            return Response(serialized_purchases.data, status=status.HTTP_200_OK)
-        except Order.DoesNotExist:
-            raise NotFound(detail = 'Purchase requests not found.')
+        purchase_requests = Order.objects.filter(buyer=request.user)
+        if not purchase_requests.exists():
+            return Response({'detail': 'No purchase requests found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serialized_purchases = OrderSerializer(purchase_requests, many=True)
+        return Response(serialized_purchases.data, status=status.HTTP_200_OK)
 
 
 class CreateOrderView(APIView):

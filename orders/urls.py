@@ -15,6 +15,5 @@ urlpatterns = [
     path('order-details/<int:order_id>', SpecificOrderView.as_view(), name='order-details'),
     path('review/<int:order_id>', ReviewOrderView.as_view(), name='review-order-view'),
     path('shipped/<int:order_id>', OrderShippedView.as_view(), name="order-shipped")
-
 ]
 
