@@ -44,10 +44,12 @@ class ReviewOrderView(APIView):
         order_action = request.data.get('action')
         if order_action == 'accept':
             order.status = 'accepted'
+            order.viewed_by_buyer = False 
             order.save()
             return Response({'message': 'Order accepted', 'status': order.status}, status=status.HTTP_200_OK)
         elif order_action == 'cancel':
-            order.status = 'cancelled'  
+            order.status = 'cancelled'
+            order.viewed_by_buyer = False   
             order.save()
             return Response({'message': 'Order cancelled', 'status': order.status}, status=status.HTTP_200_OK)
         else:
@@ -67,6 +69,7 @@ class OrderShippedView(APIView):
             return Response({'error': 'Order is not ready to ship.'}, status=status.HTTP_400_BAD_REQUEST)
 
         order.status = 'shipped'
+        order.viewed_by_buyer = False
         order.save()
         return Response({'message': 'Order status updated to shipped.'}, status=status.HTTP_200_OK)
 

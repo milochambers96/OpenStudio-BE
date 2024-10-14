@@ -73,6 +73,7 @@ class CancelOrderView(APIView):
         if order.status not in ['pending', 'accepted']:
             return Response({'error': 'This order cannot be cancelled'}, status=status.HTTP_400_BAD_REQUEST)
         order.status = 'cancelled'
+        order.viewed_by_seller = False
         order.save()
 
         serialized_order = OrderSerializer(order)
@@ -94,6 +95,7 @@ class ProcessDummyPaymentView(APIView):
 
         if payment_successful:
             order.status = 'ready to ship'
+            order.viewed_by_seller = False
             order.save()
 
             # Update artwork quantity and status
