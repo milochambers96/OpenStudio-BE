@@ -2,6 +2,7 @@ from django.urls import path
 from .views.admin_view import AllOrdersView
 from .views.buyer_views import PurchaseRequestsListView, CreateOrderView, CancelOrderView, ProcessDummyPaymentView
 from .views.seller_views import SellerOrdersListView, SpecificOrderView, ReviewOrderView, OrderShippedView
+from .views.counterparties_views import UnviewedOrdersView, MarkOrdersViewedView
 
 urlpatterns = [
     path('all/', AllOrdersView.as_view(), name='admin-orders-list-view'),
@@ -14,6 +15,9 @@ urlpatterns = [
     path('seller/', SellerOrdersListView.as_view(), name='seller-orders'),
     path('order-details/<int:order_id>', SpecificOrderView.as_view(), name='order-details'),
     path('review/<int:order_id>', ReviewOrderView.as_view(), name='review-order-view'),
-    path('shipped/<int:order_id>', OrderShippedView.as_view(), name="order-shipped")
+    path('shipped/<int:order_id>', OrderShippedView.as_view(), name="order-shipped"),
+
+    path('unviewed-orders/', UnviewedOrdersView.as_view(), name='order-notifcations-view'),
+    path('mark-viewed/', MarkOrdersViewedView.as_view(), name='mark-orders-viewed')
 ]
 

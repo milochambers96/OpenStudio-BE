@@ -89,11 +89,10 @@ class ProcessDummyPaymentView(APIView):
         if order.status != 'accepted':
             return Response({'error': 'Order is not accepted yet.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Dummy Payment Logic as a placeholder for student project purpose
+        # Dummy Payment Logic as a placeholder would need stripe or something similar in the real world.
         payment_successful = True
 
         if payment_successful:
-            # Update order status
             order.status = 'ready to ship'
             order.save()
 
@@ -102,7 +101,7 @@ class ProcessDummyPaymentView(APIView):
             artwork.quantity_for_sale -= 1
             if artwork.quantity_for_sale <= 0:
                 artwork.is_for_sale = False
-                artwork.quantity_for_sale = 0  # Ensure it doesn't go negative
+                artwork.quantity_for_sale = 0 
             artwork.save()
 
             return Response({
