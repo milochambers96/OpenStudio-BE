@@ -18,10 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('members/', include('members.urls')),
-    path('artworks/', include('artworks.urls')),
-    path('images/', include('artwork_images.urls')),
-    path('galleries/', include('galleries.urls')),
-    path('orders/', include('orders.urls'))
+    path('api/admin/', admin.site.urls),
+    path('api/members/', include('members.urls')),
+    path('api/artworks/', include('artworks.urls')),
+    path('api/images/', include('artwork_images.urls')),
+    path('api/galleries/', include('galleries.urls')),
+    path('api/orders/', include('orders.urls'))
 ]
