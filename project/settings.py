@@ -145,6 +145,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'members.authentication.JWTAuthentication'
     ],
+    'COERCE_DECIMAL_TO_STRING': False,
 }
 
 

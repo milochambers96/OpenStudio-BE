@@ -4,13 +4,13 @@ from ..models import Member
 class BuyerSerializer(serializers.ModelSerializer):
      class Meta:
           model = Member
-          fields = ['id', 'username', 'collector_address', 'email']
+          fields = ['id', 'username', 'address', 'postcode']
 
 
 class SellerSerializer(serializers.ModelSerializer):
      class Meta:
           model = Member
-          fields = ['id', 'username', 'artist_address', 'email']
+          fields = ['id', 'username', 'address', 'postcode', 'first_name', 'last_name' ]
 
 
 

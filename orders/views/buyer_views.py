@@ -1,8 +1,11 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+
 
 from ..models import Order
 from artworks.models import Artwork
@@ -77,24 +80,35 @@ class CancelOrderView(APIView):
         
 
 class ProcessDummyPaymentView(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
+    @transaction.atomic
     def patch(self, request, order_id):
-        try: 
-            order = Order.objects.get(pk=order_id, buyer=request.user) 
-        except Order.DoesNotExist:
-            raise NotFound(detail='Order not found.')
+        order = get_object_or_404(Order, pk=order_id, buyer=request.user)
 
         if order.status != 'accepted':
             return Response({'error': 'Order is not accepted yet.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        ##! Dummy Payment Logic as a placeholder was student project purpose
+        # Dummy Payment Logic as a placeholder for student project purpose
         payment_successful = True
 
         if payment_successful:
-            order.status = 'ready_to_ship'
+            # Update order status
+            order.status = 'ready to ship'
             order.save()
 
-            return Response({'message': 'Payment successful, order is ready to ship.'}, status=status.HTTP_200_OK)
+            # Update artwork quantity and status
+            artwork = order.artwork
+            artwork.quantity_for_sale -= 1
+            if artwork.quantity_for_sale <= 0:
+                artwork.is_for_sale = False
+                artwork.quantity_for_sale = 0  # Ensure it doesn't go negative
+            artwork.save()
+
+            return Response({
+                'message': 'Payment successful, order is ready to ship.',
+                'new_quantity': artwork.quantity_for_sale,
+                'is_for_sale': artwork.is_for_sale
+            }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Payment failed.'}, status=status.HTTP_400_BAD_REQUEST)

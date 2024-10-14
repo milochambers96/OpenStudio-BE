@@ -63,7 +63,7 @@ class OrderShippedView(APIView):
         except Order.DoesNotExist:
             raise NotFound(detail="Order not found.")
         
-        if order.status != 'ready_to_ship':
+        if order.status != 'ready to ship':
             return Response({'error': 'Order is not ready to ship.'}, status=status.HTTP_400_BAD_REQUEST)
 
         order.status = 'shipped'

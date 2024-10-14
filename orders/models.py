@@ -18,3 +18,6 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=30, choices=STATUS_CHOICES)
 
+    def __str__(self):
+        return f'Order between {self.buyer.username} & {self.seller.username}'
+
