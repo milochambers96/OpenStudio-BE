@@ -10,7 +10,7 @@ class BuyerSerializer(serializers.ModelSerializer):
 class SellerSerializer(serializers.ModelSerializer):
      class Meta:
           model = Member
-          fields = ['id', 'username', 'address', 'postcode', 'first_name', 'last_name' ]
+          fields = ['id', 'username', 'address', 'postcode', 'first_name', 'last_name', 'bio' ]
 
 
 

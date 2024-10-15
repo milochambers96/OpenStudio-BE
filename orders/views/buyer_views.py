@@ -36,7 +36,6 @@ class CreateOrderView(APIView):
          
         seller = artwork.artist 
 
-        ##! This will be caculated on the frontend
         final_price = request.data.get('final_price')
     
         order_data = {
@@ -83,6 +82,7 @@ class CancelOrderView(APIView):
 class ProcessDummyPaymentView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    #! transactions ensures all the actions happen at once across DBs 
     @transaction.atomic
     def patch(self, request, order_id):
         order = get_object_or_404(Order, pk=order_id, buyer=request.user)
@@ -98,7 +98,6 @@ class ProcessDummyPaymentView(APIView):
             order.viewed_by_seller = False
             order.save()
 
-            # Update artwork quantity and status
             artwork = order.artwork
             artwork.quantity_for_sale -= 1
             if artwork.quantity_for_sale <= 0:

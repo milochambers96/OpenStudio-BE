@@ -1,18 +1,15 @@
-import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from ..models import Order
 
-logger = logging.getLogger(__name__)
 
 class UnviewedOrdersView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        logger.info(f"Checking unviewed orders for user: {user.username}, type: {user.user_type}")
         
         has_unviewed_orders = False
 
@@ -22,13 +19,10 @@ class UnviewedOrdersView(APIView):
             elif user.user_type == 'artist':
                 has_unviewed_orders = Order.objects.filter(seller=user, viewed_by_seller=False).exists()
             else:
-                logger.error(f"Invalid user type: {user.user_type}")
                 return Response({"error": "Invalid user type"}, status=status.HTTP_400_BAD_REQUEST)
 
-            logger.info(f"Has unviewed orders: {has_unviewed_orders}")
             return Response({"has_unviewed_orders": has_unviewed_orders})
         except Exception as e:
-            logger.error(f"Error in UnviewedOrdersView: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class MarkOrdersViewedView(APIView):

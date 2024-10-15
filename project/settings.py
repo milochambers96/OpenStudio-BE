@@ -74,19 +74,18 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+print(ENV)
 DATABASES = {}
-if ENV != 'DEV':
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)	
-else: 
+if ENV == 'DEV':
+    print('Hello is this working')
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'openstudio-api',
         'HOST': 'localhost',
-        'PORT': 5432
+        'PORT': 5432,
     }
-
-
+else:
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -145,5 +144,5 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
 }
 
-
-django_on_heroku.settings(locals())
+if ENV != 'DEV':    
+    django_on_heroku.settings(locals())

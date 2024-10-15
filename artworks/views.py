@@ -10,9 +10,7 @@ from .serializers.common import ArtworkSerializer
 # from artwork_images.serializers.common import ArtworkImageSerializer
 from .serializers.populated import PopulatedArtworkSerializer
 
-import logging
 
-logger = logging.getLogger(__name__)
 
 class ArtworkListView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly, )
@@ -94,7 +92,6 @@ class ArtworkDetailView(APIView):
         except PermissionDenied as e:
             return Response({"detail": str(e)}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
-            logger.error(f"Error deleting artwork: {str(e)}")
             return Response({"detail": "An error occurred while deleting the artwork."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
@@ -108,19 +105,15 @@ class ArtworkCreateView(APIView):
                 artwork_instance = artwork_to_add.save()
                 image_urls = request.data.get('artworks_images', [])
                 
-                logger.info(f"Received image URLs: {image_urls}")
                 
                 for image_url in image_urls:
                     ArtworkImage.objects.create(artwork=artwork_instance, image_url=image_url)
                 
                 updated_artwork = PopulatedArtworkSerializer(artwork_instance).data
-                logger.info(f"Updated artwork data: {updated_artwork}")
                 
                 return Response(updated_artwork, status=status.HTTP_201_CREATED)
             else:
-                logger.error(f"Validation errors: {artwork_to_add.errors}")
                 return Response(artwork_to_add.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as err:
-            logger.exception(f"Error creating artwork: {str(err)}")
             return Response({"detail": f"An error occurred while creating the artwork: {str(err)}"}, status=status.HTTP_400_BAD_REQUEST)
         
