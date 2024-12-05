@@ -4,6 +4,8 @@
 
 OpenStudio is a full-featured art marketplace platform built after one week of learning Python for the first time. The platform connects artists with collectors, enabling artwork sales and gallery curation. This repository contains the Django REST Framework backend API, with the frontend built in TypeScript available at [OpenStudio Frontend](https://github.com/milochambers96/OpenStudio-FE).
 
+The live API can be accessed at [OpenStudio API](https://openstudio-api-dd90e294d836.herokuapp.com/), and the frontend app can be accessed at [OpenStudio](https://openstudio.netlify.app/).
+
 ### Development Timeline & Achievements
 
 - Built over one week after initial week of Python learning
@@ -686,6 +688,8 @@ POST   /api/orders/mark-viewed/            # Clear notifications
 ```
 
 ## Deployment
+
+The API is deployed and can be accessed at [https://openstudio-api-dd90e294d836.herokuapp.com/](https://openstudio-api-dd90e294d836.herokuapp.com/).
 
 ### Heroku Configuration
 
