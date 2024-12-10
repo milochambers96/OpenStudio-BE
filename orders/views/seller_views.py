@@ -12,8 +12,8 @@ class SellerOrdersListView(APIView):
 
     def get(self, request): 
         purchase_requests = Order.objects.filter(seller=request.user)
-        if not purchase_requests.exists():
-            return Response({'detail': 'No purchase requests found.'}, status=status.HTTP_404_NOT_FOUND)
+        # if not purchase_requests.exists():
+        #     return Response({'detail': 'No purchase requests found.'}, status=status.HTTP_404_NOT_FOUND)
         
         serialized_purchases = OrderSerializer(purchase_requests, many=True)
         return Response(serialized_purchases.data, status=status.HTTP_200_OK)
