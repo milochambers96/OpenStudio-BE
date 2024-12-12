@@ -747,3 +747,29 @@ This project represents significant achievements in:
 - Handling complex database relationships
 - Implementing error handling and data validation
 - Understanding deployment processes
+
+# Post-Sprint Enhancements
+
+## December 2024
+
+### JWT Authentication Optimisation
+
+After the initial sprint, I focused on improving the JWT authentication process to ensure more robust and error-resistant token handling. The key changes include:
+
+- Modified the token generation process in the login view to convert the user ID to a string when creating the JWT token. This ensures compatibility with JWT libraries that expect string subjects.
+- Updated the JWTAuthentication class to parse the 'sub' claim as an integer when looking up the user, maintaining consistency with the database's integer primary keys.
+- Implemented more detailed error logging in the authentication process to facilitate easier debugging and maintenance.
+
+These changes resolve a critical issue where authentication was failing due to a type mismatch between the token's subject claim and the expected format in the authentication process. The updated code now handles this, improving overall system reliability.
+
+### Enhanced Error Handling and Logging
+
+To improve the robustness and maintainability of the application, I implemented more comprehensive error handling and logging throughout the authentication process:
+
+- Added detailed logging statements in the JWTAuthentication class to track the flow of the authentication process.
+- Implemented specific exception handling for different JWT-related errors (e.g., expired tokens, invalid tokens).
+- Improved error messages to provide more context, aiding in both development and user experience.
+
+These enhancements not only make the system more resilient to errors but also significantly improve the debugging process, allowing for quicker identification and resolution of issues in production.
+
+These post-sprint enhancements demonstrate a commitment to continuous improvement, addressing both immediate issues and laying groundwork for future scalability and maintainability of the OpenStudio API.
