@@ -67,7 +67,8 @@ class LoginView(APIView):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         dt = datetime.now() + timedelta(days=14)
-        token = jwt.encode({'sub': member_to_login.id, 'exp': int(dt.timestamp())}, settings.SECRET_KEY, algorithm='HS256')
+        token = jwt.encode({'sub': str(member_to_login.id), 'exp': int(dt.timestamp())}, settings.SECRET_KEY, algorithm='HS256')
+        print(f"Generated token: {token}")
 
         if member_to_login.user_type == 'collector':
             user_gallery = Gallery.objects.get(curator=member_to_login)
@@ -81,22 +82,25 @@ class LoginView(APIView):
                 "token": token, 
                 "message": f"Welcome back {member_to_login.first_name} {member_to_login.last_name}."
             })
+            
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MemberIdView(APIView):
-    
-    def get(self, request): 
+    def get(self, request):
+        logger.info(f"Received token: {request.headers.get('Authorization')}")
         try:
             current_member = request.user
             if current_member.is_authenticated:
                 member_data = MemberSerializer(current_member).data
                 return Response(member_data, status=status.HTTP_200_OK)
-            else: 
+            else:
+                logger.warning("User not authenticated")
                 return Response({"message": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as error:
-            print(error)
+            logger.error(f"Error: {error}")
             return Response(
                 {"message": "There was an error, please try again later."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        

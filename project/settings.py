@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import django_on_heroku
 from dotenv import load_dotenv
+from django.conf import settings
 import dj_database_url
 load_dotenv()
 
@@ -12,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 if ENV == 'DEV':
-    SECRET_KEY = os.getenv('SECRET_KEY', 'Top_Secret')
+    SECRET_KEY = os.getenv('SECRET_KEY')
 else:
     SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
@@ -75,6 +76,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 print(ENV)
+
+
+
 DATABASES = {}
 if ENV == 'DEV':
     print('Hello is this working')
@@ -143,6 +147,9 @@ REST_FRAMEWORK = {
     ],
     'COERCE_DECIMAL_TO_STRING': False,
 }
+
+print(f"Development environment SECRET_KEY: {settings.SECRET_KEY}")
+
 
 if ENV != 'DEV':    
     django_on_heroku.settings(locals())
