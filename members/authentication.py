@@ -23,7 +23,7 @@ class JWTAuthentication(BasicAuthentication):
             raise PermissionDenied(detail="Invalid authorisation token")
         
         token = header.replace("Bearer ", "")
-        logger.debug(f"Token extracted: {token[:10]}...")  # Log first 10 chars for debugging
+        logger.debug(f"Token extracted: {token[:10]}...") 
 
         try:
             logger.debug("Attempting to decode token")
